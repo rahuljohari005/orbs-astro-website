@@ -1,0 +1,51 @@
+{
+    "models": [
+        {
+            "title": "OpenAI",
+            "provider": "openai",
+            "model": "gpt-4-turbo",
+            "apiKey": "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
+"
+        },
+        {
+            "title": "Ollama (Qwen)",
+            "provider": "ollama",
+            "model": "qwen:latest",
+            "apiBase": "http://localhost:11434"
+        },
+        {
+            "title": "Ollama (auto)",
+            "provider": "ollama",
+            "model": "AUTODETECT",
+            "apiBase": "http://localhost:11434"
+        },
+        {
+            "title": "LM Studio (OpenAI API)",
+            "provider": "openai",
+            "model": "local-model",
+            "apiBase": "http://localhost:1234/v1"
+        },
+        {
+            "title": "OpenAI-compatible (localhost:8080)",
+            "provider": "openai",
+            "model": "local-model",
+            "apiBase": "http://localhost:8080/v1"
+        }
+    ],
+    "tabAutocompleteModel": {
+        "title": "Ollama autocomplete",
+        "provider": "ollama",
+        "model": "starcoder2:3b",
+        "apiBase": "http://localhost:11434/"
+    },
+    "embeddingsProvider": {
+        "provider": "transformers.js",
+        "model": "Xenova/bge-small-en-v1.5"
+    },
+    "completionOptions": {
+        "temperature": 0.2
+    },
+    "requestOptions": {
+        "timeout": 7200
+    }
+}
