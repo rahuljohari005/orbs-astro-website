@@ -2,7 +2,6 @@
 import { motion } from "framer-motion";
 import { User, Calendar, Clock, MapPin, BarChart3, Download, Share2, Star } from "lucide-react";
 import { useState } from "react";
-import { generateEnhancedLagnaChart } from '@/lib/astrologyEngine';
 
 interface FormData {
     name: string;
@@ -54,41 +53,59 @@ export default function LagnaChartGenerator() {
         setError(null);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            // Use the local astrology engine for accurate calculations
-            const chartData = generateEnhancedLagnaChart({
-                name: formData.name,
-                date: formData.dateOfBirth,
-                time: formData.timeOfBirth,
-                place: formData.placeOfBirth
+            // Call the AI backend proxy for accurate calculations
+            const response = await fetch('/api/proxy/kundali', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    date_of_birth: formData.dateOfBirth,
+                    time_of_birth: formData.timeOfBirth,
+                    place_of_birth: formData.placeOfBirth
+                })
             });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to generate kundli');
+            }
+
+            const chartData = result.data;
 
             // Transform the data to match our display format
             const transformedData = {
                 lagna_chart: {
                     lagna: {
-                        rashi: chartData.lagna_rashi,
-                        degree: chartData.planets.find(p => p.name === 'Sun')?.degree || 15,
-                        nakshatra: chartData.lagna_nakshatra,
-                        pada: Math.floor((chartData.planets.find(p => p.name === 'Sun')?.degree || 15) / 7.5) + 1
+                        rashi: chartData.lagna?.rashi || 'Aries',
+                        degree: chartData.lagna?.degree || 15,
+                        nakshatra: chartData.lagna?.nakshatra || 'Ashwini',
+                        pada: chartData.lagna?.pada || 1
                     },
-                    planets: chartData.planets.map((planet: any) => ({
-                        name: planet.name,
-                        rashi: planet.rashi,
-                        house: planet.house,
-                        degree: planet.degree,
-                        nakshatra: planet.nakshatra || 'N/A'
+                    planets: Object.entries(chartData.planets || {}).map(([planetName, planetData]: [string, any]) => ({
+                        name: planetName,
+                        rashi: planetData.rashi || 'Aries',
+                        house: planetData.house || 1,
+                        degree: planetData.degree || 15,
+                        nakshatra: planetData.nakshatra || 'Ashwini'
                     }))
                 },
-                houses: chartData.houses.map((house: any, index: number) => ({
-                    house: index + 1,
-                    rashi: house.rashi,
-                    lord: house.lord
+                houses: chartData.houses || Array.from({ length: 12 }, (_, i) => ({
+                    house: i + 1,
+                    rashi: 'Aries',
+                    lord: 'Mars'
                 }))
             };
 

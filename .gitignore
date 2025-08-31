@@ -36,4 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 # Large media files (moved to CDN)
-public/*.mp4 
+public/*.mp4
+
+# Local development configuration
+.dev.local.ps1 
